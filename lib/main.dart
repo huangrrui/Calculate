@@ -168,7 +168,7 @@ class _MyAppState extends State<MyApp> {
     result = 0;
 
     while (true) {
-      operator = Random().nextInt(2);
+      operator = Random().nextInt(3);
       n1 = Random().nextInt(10);
       n2 = Random().nextInt(10);
       if (operator == 0) {
@@ -179,6 +179,8 @@ class _MyAppState extends State<MyApp> {
         } else {
           expectResult = n1 - n2;
         }
+      } else if (operator == 2) {
+        expectResult = n1 * n2;
       }
       break;
     }
