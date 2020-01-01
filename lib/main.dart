@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +9,12 @@ enum Operator {
   minus,
   multiple,
   divide,
+}
+
+enum PadType {
+  num,
+  ok,
+  del,
 }
 
 void main() {
@@ -22,7 +29,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   int n1 = 0;
   int n2 = 0;
-  int operator = 0; // 0123,+-*/
+  Operator operator = Operator.plus;
   int result = 0;
   int expectResult = 0;
 
@@ -51,15 +58,21 @@ class _MyAppState extends State<MyApp> {
 
   Widget _calculateView() {
     String operatorStr;
-    if (operator == 0) {
-      operatorStr = '+';
-    } else if (operator == 1) {
-      operatorStr = '-';
-    } else if (operator == 2) {
-      operatorStr = 'x';
-    } else {
-      operatorStr = '/';
+    switch (operator) {
+      case Operator.plus:
+        operatorStr = '+';
+        break;
+      case Operator.minus:
+        operatorStr = '-';
+        break;
+      case Operator.multiple:
+        operatorStr = 'x';
+        break;
+      case Operator.divide:
+        operatorStr = '/';
+        break;
     }
+
     return Container(
       margin: EdgeInsets.all(32.0),
       child: Center(
@@ -81,33 +94,33 @@ class _MyAppState extends State<MyApp> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              _numPad('1'),
-              _numPad('2'),
-              _numPad('3'),
+              _pad(PadType.num, num: 1),
+              _pad(PadType.num, num: 2),
+              _pad(PadType.num, num: 3),
             ],
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              _numPad('4'),
-              _numPad('5'),
-              _numPad('6'),
+              _pad(PadType.num, num: 4),
+              _pad(PadType.num, num: 5),
+              _pad(PadType.num, num: 6),
             ],
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              _numPad('7'),
-              _numPad('8'),
-              _numPad('9'),
+              _pad(PadType.num, num: 7),
+              _pad(PadType.num, num: 8),
+              _pad(PadType.num, num: 9),
             ],
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              _numPad('Del'),
-              _numPad('0'),
-              _numPad('OK'),
+              _pad(PadType.del),
+              _pad(PadType.num, num: 0),
+              _pad(PadType.ok),
             ],
           ),
         ],
@@ -115,28 +128,49 @@ class _MyAppState extends State<MyApp> {
     );
   }
 
-  Widget _numPad(String title) {
-    return FlatButton(
-      onPressed: () {
-        setState(() {
-          try {
-            int n = int.parse(title);
-            if (result <= 9) {
-              result = result * 10 + n;
-            }
-          } catch (e) {
-            if (title == 'OK') {
-              // 生成新的题目
-              if (result == expectResult) {
-                _generateQuestion();
-              }
-            } else if (title == 'Del') {
-              // 清空输入
-              result = 0;
-            }
+  Widget _pad(PadType type, {int num}) {
+    switch (type) {
+      case PadType.num:
+        return _numPad(num.toString());
+      case PadType.del:
+        return _controlPad('Del');
+        break;
+      case PadType.ok:
+        return _controlPad('OK');
+        break;
+    }
+  }
+
+  Widget _controlPad(String title) {
+    return _tapPad(title, () {
+      setState(() {
+        if (title == 'OK') {
+          // 生成新的题目
+          if (result == expectResult) {
+            _generateQuestion();
           }
-        });
-      },
+        } else if (title == 'Del') {
+          // 清空输入
+          result = 0;
+        }
+      });
+    });
+  }
+
+  Widget _numPad(String title) {
+    return _tapPad(title, () {
+      setState(() {
+        int n = int.parse(title);
+        if (result <= 9) {
+          result = result * 10 + n;
+        }
+      });
+    });
+  }
+
+  Widget _tapPad(String title, void Function() target) {
+    return FlatButton(
+      onPressed: target,
       padding: EdgeInsets.zero,
       child: Container(
         margin: EdgeInsets.all(1),
@@ -163,23 +197,22 @@ class _MyAppState extends State<MyApp> {
   _generateQuestion() {
     n1 = 0;
     n2 = 0;
-    operator = 0;
     expectResult = 0;
     result = 0;
 
     while (true) {
-      operator = Random().nextInt(3);
+      operator = Operator.values[Random().nextInt(3)];
       n1 = Random().nextInt(10);
       n2 = Random().nextInt(10);
-      if (operator == 0) {
+      if (operator == Operator.plus) {
         expectResult = n1 + n2;
-      } else if (operator == 1) {
+      } else if (operator == Operator.minus) {
         if (n1 < n2) {
           continue;
         } else {
           expectResult = n1 - n2;
         }
-      } else if (operator == 2) {
+      } else if (operator == Operator.multiple) {
         expectResult = n1 * n2;
       }
       break;
