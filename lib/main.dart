@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 import 'dart:ui';
 
@@ -32,11 +33,19 @@ class _MyAppState extends State<MyApp> {
   Operator operator = Operator.plus;
   int result = 0;
   int expectResult = 0;
+  String resultStr = ''; // 回答结果文字（正确、错误）
+  Timer resultStrTimer;
 
   @override
   void initState() {
     _generateQuestion();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    resultStrTimer?.cancel();
+    super.dispose();
   }
 
   @override
@@ -74,14 +83,29 @@ class _MyAppState extends State<MyApp> {
     }
 
     return Container(
-      margin: EdgeInsets.all(32.0),
-      child: Center(
-        child: Text(
-          '$n1 $operatorStr $n2 = $result',
-          style: TextStyle(
-            fontSize: 50,
+      margin: EdgeInsets.all(32),
+      child: Row(
+        children: <Widget>[
+          Expanded(
+            flex: 1,
+            child: Container(),
           ),
-        ),
+          Text(
+            '$n1 $operatorStr $n2 = $result',
+            style: TextStyle(
+              fontSize: 50,
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: Center(
+              child: Text(
+                resultStr,
+                style: TextStyle(fontSize: 40),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -134,26 +158,19 @@ class _MyAppState extends State<MyApp> {
         return _numPad(num.toString());
       case PadType.del:
         return _controlPad('Del');
-        break;
       case PadType.ok:
         return _controlPad('OK');
-        break;
     }
   }
 
   Widget _controlPad(String title) {
     return _tapPad(title, () {
-      setState(() {
-        if (title == 'OK') {
-          // 生成新的题目
-          if (result == expectResult) {
-            _generateQuestion();
-          }
-        } else if (title == 'Del') {
-          // 清空输入
-          result = 0;
-        }
-      });
+      if (title == 'OK') {
+        _onOkClicked();
+      } else if (title == 'Del') {
+        _onDelClicked();
+      }
+      setState(() {});
     });
   }
 
@@ -217,5 +234,37 @@ class _MyAppState extends State<MyApp> {
       }
       break;
     }
+  }
+
+  _startTimer() {
+    if (resultStrTimer != null) {
+      resultStrTimer.cancel();
+    }
+
+    resultStrTimer = Timer(Duration(seconds: 1), () {
+      resultStrTimer.cancel();
+      resultStrTimer = null;
+      setState(() {
+        resultStr = '';
+      });
+    });
+  }
+
+  _onOkClicked() {
+    // 生成新的题目
+    if (result == expectResult) {
+      _generateQuestion();
+      resultStr = 'Correct';
+    } else {
+      result = 0;
+      resultStr = 'Wrong';
+    }
+    setState(() {});
+    _startTimer();
+  }
+
+  _onDelClicked() {
+    // 清空输入
+    result = 0;
   }
 }
