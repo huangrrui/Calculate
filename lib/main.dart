@@ -217,8 +217,8 @@ class _MyAppState extends State<MyApp> {
     expectResult = 0;
     result = 0;
 
+    operator = Operator.values[Random().nextInt(4)];
     while (true) {
-      operator = Operator.values[Random().nextInt(3)];
       n1 = Random().nextInt(10);
       n2 = Random().nextInt(10);
       if (operator == Operator.plus) {
@@ -231,6 +231,15 @@ class _MyAppState extends State<MyApp> {
         }
       } else if (operator == Operator.multiple) {
         expectResult = n1 * n2;
+      } else if (operator == Operator.divide) {
+        if (n2 == 0) {
+          continue;
+        }
+
+        if ((n1 / n2) != (n1 ~/ n2).toDouble()) {
+          continue;
+        }
+        expectResult = n1 ~/ n2;
       }
       break;
     }
