@@ -1,20 +1,5 @@
-import 'dart:async';
-import 'dart:math';
-
+import 'package:calculate/home_page_view_model.dart';
 import 'package:flutter/material.dart';
-
-enum Operator {
-  plus,
-  minus,
-  multiple,
-  divide,
-}
-
-enum PadType {
-  num,
-  ok,
-  del,
-}
 
 class HomePage extends StatefulWidget {
   @override
@@ -22,23 +7,20 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int n1 = 0;
-  int n2 = 0;
-  Operator operator = Operator.plus;
-  int result = 0;
-  int expectResult = 0;
-  String resultStr = ''; // 回答结果文字（正确、错误）
-  Timer resultStrTimer;
+  HomePageViewModel viewModel;
 
   @override
   void initState() {
-    _generateQuestion();
+    viewModel = HomePageViewModel.init();
+    viewModel.generateQuestion();
+    viewModel.state = this;
+    print(this);
     super.initState();
   }
 
   @override
   void dispose() {
-    resultStrTimer?.cancel();
+    viewModel.dispose();
     super.dispose();
   }
 
@@ -65,7 +47,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget _calculateView() {
     String operatorStr;
-    switch (operator) {
+    switch (viewModel.operator) {
       case Operator.plus:
         operatorStr = '+';
         break;
@@ -89,7 +71,7 @@ class _HomePageState extends State<HomePage> {
             child: Container(),
           ),
           Text(
-            '$n1 $operatorStr $n2 = $result',
+            '${viewModel.n1} $operatorStr ${viewModel.n2} = ${viewModel.result}',
             style: TextStyle(
               fontSize: 50,
             ),
@@ -98,7 +80,7 @@ class _HomePageState extends State<HomePage> {
             flex: 1,
             child: Center(
               child: Text(
-                resultStr,
+                viewModel.resultStr,
                 style: TextStyle(fontSize: 40),
               ),
             ),
@@ -164,9 +146,9 @@ class _HomePageState extends State<HomePage> {
   Widget _controlPad(String title) {
     return _tapPad(title, () {
       if (title == 'OK') {
-        _onOkClicked();
+        viewModel.onOkClicked();
       } else if (title == 'Del') {
-        _onDelClicked();
+        viewModel.onDelClicked();
       }
       setState(() {});
     });
@@ -176,8 +158,8 @@ class _HomePageState extends State<HomePage> {
     return _tapPad(title, () {
       setState(() {
         int n = int.parse(title);
-        if (result <= 9) {
-          result = result * 10 + n;
+        if (viewModel.result <= 9) {
+          viewModel.result = viewModel.result * 10 + n;
         }
       });
     });
@@ -207,71 +189,5 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
-  }
-
-  _generateQuestion() {
-    n1 = 0;
-    n2 = 0;
-    expectResult = 0;
-    result = 0;
-
-    operator = Operator.values[Random().nextInt(4)];
-    while (true) {
-      n1 = Random().nextInt(10);
-      n2 = Random().nextInt(10);
-      if (operator == Operator.plus) {
-        expectResult = n1 + n2;
-      } else if (operator == Operator.minus) {
-        if (n1 < n2) {
-          continue;
-        } else {
-          expectResult = n1 - n2;
-        }
-      } else if (operator == Operator.multiple) {
-        expectResult = n1 * n2;
-      } else if (operator == Operator.divide) {
-        if (n2 == 0) {
-          continue;
-        }
-
-        if ((n1 / n2) != (n1 ~/ n2).toDouble()) {
-          continue;
-        }
-        expectResult = n1 ~/ n2;
-      }
-      break;
-    }
-  }
-
-  _startTimer() {
-    if (resultStrTimer != null) {
-      resultStrTimer.cancel();
-    }
-
-    resultStrTimer = Timer(Duration(seconds: 1), () {
-      resultStrTimer.cancel();
-      resultStrTimer = null;
-      setState(() {
-        resultStr = '';
-      });
-    });
-  }
-
-  _onOkClicked() {
-    // 生成新的题目
-    if (result == expectResult) {
-      _generateQuestion();
-      resultStr = 'Correct';
-    } else {
-      result = 0;
-      resultStr = 'Wrong';
-    }
-    setState(() {});
-    _startTimer();
-  }
-
-  _onDelClicked() {
-    // 清空输入
-    result = 0;
   }
 }
