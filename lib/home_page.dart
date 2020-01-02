@@ -185,18 +185,21 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _drawerView() {
+    TextStyle style = TextStyle(
+      fontSize: 20.0,
+    );
     return Container(
       color: Colors.white,
       width: 256,
       child: ListView(
         children: <Widget>[
-          ListTile(
-            title: Text('一位数加减乘除'),
-            onTap: () => viewModel.onSettingQuestionClicked(1),
+          FlatButton(
+            child: Text('一位数加减乘除', style: style),
+            onPressed: () => viewModel.onSettingQuestionClicked(1),
           ),
-          ListTile(
-            title: Text('两位数加减乘除'),
-            onTap: () => viewModel.onSettingQuestionClicked(2),
+          FlatButton(
+            child: Text('两位数加减乘除', style: style),
+            onPressed: () => viewModel.onSettingQuestionClicked(2),
           ),
         ],
       ),
