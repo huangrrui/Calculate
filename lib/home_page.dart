@@ -26,13 +26,12 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    viewModel.context = context;
     return Scaffold(
+      drawer: _drawerView(),
       appBar: AppBar(
         title: Text('Calculate'),
-        leading: IconButton(
-          onPressed: null,
-          icon: Icon(Icons.settings),
-        ),
+        leading: _LeadingButton(model: viewModel),
       ),
       body: Container(
         child: Column(
@@ -155,14 +154,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _numPad(String title) {
-    return _tapPad(title, () {
-      setState(() {
-        int n = int.parse(title);
-        if (viewModel.result <= 9) {
-          viewModel.result = viewModel.result * 10 + n;
-        }
-      });
-    });
+    int num = int.parse(title);
+    return _tapPad(title, () => viewModel.onNumClicked(num));
   }
 
   Widget _tapPad(String title, void Function() target) {
@@ -188,6 +181,42 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _drawerView() {
+    return Container(
+      color: Colors.white,
+      width: 256,
+      child: ListView(
+        children: <Widget>[
+          ListTile(
+            title: Text('一位数加减乘除'),
+            onTap: () => viewModel.onSettingQuestionClicked(1),
+          ),
+          ListTile(
+            title: Text('两位数加减乘除'),
+            onTap: () => viewModel.onSettingQuestionClicked(2),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LeadingButton extends StatelessWidget {
+  final HomePageViewModel model;
+  _LeadingButton({
+    this.model,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      onPressed: () {
+        model.onDrawerClicked(context);
+      },
+      icon: Icon(Icons.settings),
     );
   }
 }

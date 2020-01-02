@@ -18,6 +18,7 @@ enum PadType {
 
 class HomePageViewModel {
   State state;
+  BuildContext context;
 
   int n1;
   int n2;
@@ -26,6 +27,7 @@ class HomePageViewModel {
   int expectResult;
   String resultStr; // 回答结果文字（正确、错误）
   Timer resultStrTimer;
+  int questionDigit;
 
   HomePageViewModel.init() {
     n1 = 0;
@@ -34,7 +36,7 @@ class HomePageViewModel {
     result = 0;
     expectResult = 0;
     resultStr = '';
-    resultStrTimer;
+    questionDigit = 1;
   }
 
   dispose() {
@@ -49,8 +51,8 @@ class HomePageViewModel {
 
     operator = Operator.values[Random().nextInt(4)];
     while (true) {
-      n1 = Random().nextInt(10);
-      n2 = Random().nextInt(10);
+      n1 = Random().nextInt(10 * questionDigit);
+      n2 = Random().nextInt(10 * questionDigit);
       if (operator == Operator.plus) {
         expectResult = n1 + n2;
       } else if (operator == Operator.minus) {
@@ -105,5 +107,25 @@ class HomePageViewModel {
   onDelClicked() {
     // 清空输入
     result = 0;
+  }
+
+  onNumClicked(int num) {
+    state.setState(() {
+      if (result <= (10 * questionDigit - 1)) {
+        result = result * 10 + num;
+      }
+    });
+  }
+
+  onDrawerClicked(BuildContext context) {
+    Scaffold.of(context).openDrawer();
+  }
+
+  /// 几位数乘法
+  onSettingQuestionClicked(int digits) {
+    Navigator.pop(context);
+    questionDigit = digits;
+    generateQuestion();
+    state.setState(() {});
   }
 }
