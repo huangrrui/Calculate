@@ -67,7 +67,7 @@ class _HomePageState extends State<HomePage> {
         children: <Widget>[
           Expanded(
             flex: 1,
-            child: Container(),
+            child: _scoreView(),
           ),
           Text(
             '${viewModel.n1} $operatorStr ${viewModel.n2} = ${viewModel.result}',
@@ -80,7 +80,7 @@ class _HomePageState extends State<HomePage> {
             child: Center(
               child: Text(
                 viewModel.resultStr,
-                style: TextStyle(fontSize: 40),
+                style: TextStyle(fontSize: 32),
               ),
             ),
           ),
@@ -202,6 +202,17 @@ class _HomePageState extends State<HomePage> {
             onPressed: () => viewModel.onSettingQuestionClicked(2),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _scoreView() {
+    return Container(
+      child: Text(
+        'score: ${viewModel.score}',
+        style: TextStyle(
+          fontSize: 32,
+        ),
       ),
     );
   }

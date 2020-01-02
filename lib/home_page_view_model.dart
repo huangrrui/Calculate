@@ -28,6 +28,11 @@ class HomePageViewModel {
   String resultStr; // 回答结果文字（正确、错误）
   Timer resultStrTimer;
   int questionDigit;
+  int get score {
+    return _score?.value ?? 0;
+  }
+
+  Accumulator _score;
 
   HomePageViewModel.init() {
     n1 = 0;
@@ -37,6 +42,7 @@ class HomePageViewModel {
     expectResult = 0;
     resultStr = '';
     questionDigit = 1;
+    _score = Accumulator();
   }
 
   dispose() {
@@ -96,6 +102,7 @@ class HomePageViewModel {
     if (result == expectResult) {
       generateQuestion();
       resultStr = 'Correct';
+      _scorePlus();
     } else {
       result = 0;
       resultStr = 'Wrong';
@@ -126,6 +133,15 @@ class HomePageViewModel {
     Navigator.pop(context);
     questionDigit = digits;
     generateQuestion();
+    _scoreReset();
     state.setState(() {});
+  }
+
+  _scorePlus() {
+    _score.increment(1);
+  }
+
+  _scoreReset() {
+    _score = Accumulator();
   }
 }
