@@ -118,9 +118,9 @@ class _HomePageState extends State<HomePage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-//              _pad(PadType.del),
+              _pad(PadType.del),
               _pad(PadType.num, num: 0),
-//              _pad(PadType.ok),
+              _pad(null),
             ],
           ),
           Row(
@@ -160,18 +160,24 @@ class _HomePageState extends State<HomePage> {
         return _controlPad('Del');
       case PadType.ok:
         return _controlPad('OK');
+      default:
+        return _controlPad(null);
     }
   }
 
   Widget _controlPad(String title) {
-    return _tapPad(title, () {
-      if (title == 'OK') {
-        viewModel.onOkClicked();
-      } else if (title == 'Del') {
-        viewModel.onDelClicked();
-      }
-      setState(() {});
-    });
+    if (title == null) {
+      return _tapPad('', null);
+    } else {
+      return _tapPad(title, () {
+        if (title == 'OK') {
+          viewModel.onOkClicked();
+        } else if (title == 'Del') {
+          viewModel.onDelClicked();
+        }
+        setState(() {});
+      });
+    }
   }
 
   Widget _numPad(String title) {
