@@ -1,8 +1,8 @@
 import 'dart:async';
-
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+
 enum Operator {
   plus,
   minus,
@@ -34,7 +34,9 @@ class HomePageViewModel {
 
   Accumulator _score;
 
-  HomePageViewModel.init() {
+  HomePageViewModel.init({
+    this.state,
+  }) {
     n1 = 0;
     n2 = 0;
     operator = Operator.plus;
@@ -55,10 +57,11 @@ class HomePageViewModel {
     expectResult = 0;
     result = 0;
 
+    /// 产生+-*/运算符
     operator = Operator.values[Random().nextInt(4)];
     while (true) {
-      n1 = Random().nextInt(10 * questionDigit);
-      n2 = Random().nextInt(10 * questionDigit);
+      n1 = pow(10, questionDigit - 1) + Random().nextInt(pow(10, questionDigit) - pow(10, questionDigit - 1));
+      n2 = pow(10, questionDigit - 1) + Random().nextInt(pow(10, questionDigit) - pow(10, questionDigit - 1));
       if (operator == Operator.plus) {
         expectResult = n1 + n2;
       } else if (operator == Operator.minus) {
@@ -117,11 +120,18 @@ class HomePageViewModel {
   }
 
   onNumClicked(int num) {
-    state.setState(() {
-      if (result <= (10 * questionDigit - 1)) {
-        result = result * 10 + num;
-      }
-    });
+    if (result <= (pow((pow(10, questionDigit) - 1), 2))) {
+      result = result * 10 + num;
+    }
+    if (result == expectResult) {
+      generateQuestion();
+      resultStr = 'Correct';
+      _scorePlus();
+    } else {
+      resultStr = 'Wrong';
+    }
+    startTimer();
+    state.setState(() {});
   }
 
   onDrawerClicked(BuildContext context) {

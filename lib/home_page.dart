@@ -11,10 +11,10 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    viewModel = HomePageViewModel.init();
+    viewModel = HomePageViewModel.init(
+      state: this,
+    );
     viewModel.generateQuestion();
-    viewModel.state = this;
-    print(this);
     super.initState();
   }
 
@@ -34,10 +34,19 @@ class _HomePageState extends State<HomePage> {
         leading: _LeadingButton(model: viewModel),
       ),
       body: Container(
-        child: Column(
+        child: Stack(
           children: <Widget>[
-            _calculateView(),
-            _padView(),
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: _calculateView(),
+            ),
+            Positioned(
+              bottom: 0,
+              right: 0,
+              child: _padView(),
+            ),
           ],
         ),
       ),
@@ -54,29 +63,41 @@ class _HomePageState extends State<HomePage> {
         operatorStr = '-';
         break;
       case Operator.multiple:
-        operatorStr = 'x';
+        operatorStr = '×️';
         break;
       case Operator.divide:
-        operatorStr = '/';
+        operatorStr = '÷';
         break;
     }
+    TextStyle style = TextStyle(
+      fontSize: 50,
+    );
 
     return Container(
       margin: EdgeInsets.all(32),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Expanded(
-            flex: 1,
+          Container(
+            width: 168,
             child: _scoreView(),
           ),
-          Text(
-            '${viewModel.n1} $operatorStr ${viewModel.n2} = ${viewModel.result}',
-            style: TextStyle(
-              fontSize: 50,
+          Expanded(
+            child: Container(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text('${viewModel.n1}', style: style),
+                  Text('$operatorStr', style: style),
+                  Text('${viewModel.n2}', style: style),
+                  Text('=', style: style),
+                  Text('${viewModel.result}', style: style),
+                ],
+              ),
             ),
           ),
-          Expanded(
-            flex: 1,
+          Container(
+            width: 168,
             child: Center(
               child: Text(
                 viewModel.resultStr,
@@ -94,6 +115,14 @@ class _HomePageState extends State<HomePage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+//              _pad(PadType.del),
+              _pad(PadType.num, num: 0),
+//              _pad(PadType.ok),
+            ],
+          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
@@ -116,14 +145,6 @@ class _HomePageState extends State<HomePage> {
               _pad(PadType.num, num: 7),
               _pad(PadType.num, num: 8),
               _pad(PadType.num, num: 9),
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              _pad(PadType.del),
-              _pad(PadType.num, num: 0),
-              _pad(PadType.ok),
             ],
           ),
         ],
@@ -165,19 +186,15 @@ class _HomePageState extends State<HomePage> {
       child: Container(
         margin: EdgeInsets.all(1),
         decoration: BoxDecoration(
-          border: Border.all(
-            color: Colors.black,
-            width: 1,
-          ),
+          border: Border.all(color: Colors.black),
+          borderRadius: BorderRadius.circular(16),
         ),
-        width: 128,
-        height: 128,
+        width: 96,
+        height: 96,
         child: Center(
           child: Text(
             title,
-            style: TextStyle(
-              fontSize: 32,
-            ),
+            style: TextStyle(fontSize: 32),
           ),
         ),
       ),
@@ -200,6 +217,14 @@ class _HomePageState extends State<HomePage> {
           FlatButton(
             child: Text('两位数加减乘除', style: style),
             onPressed: () => viewModel.onSettingQuestionClicked(2),
+          ),
+          FlatButton(
+            child: Text('三位数加减乘除', style: style),
+            onPressed: () => viewModel.onSettingQuestionClicked(3),
+          ),
+          FlatButton(
+            child: Text('四位数加减乘除', style: style),
+            onPressed: () => viewModel.onSettingQuestionClicked(4),
           ),
         ],
       ),
